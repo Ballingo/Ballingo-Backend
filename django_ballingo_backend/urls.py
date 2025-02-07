@@ -29,4 +29,7 @@ urlpatterns = [
     path("questionarie/", include("apps.questionarie.urls")),
     path("language/", include("apps.language.urls")),
     path("player/", include("apps.player.urls")),
+    path("user/", include("apps.user.urls")),
+    path("food_list/", include("apps.food_list.urls")),
+    path("food_item/", include("apps.food_item.urls")),
 ]
