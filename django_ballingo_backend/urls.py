@@ -32,4 +32,6 @@ urlpatterns = [
     path("user/", include("apps.user.urls")),
     path("food_list/", include("apps.food_list.urls")),
     path("food_item/", include("apps.food_item.urls")),
+    path("pet/", include("apps.pet.urls")),
+    path("wardrove/", include("apps.wardrove.urls")),
 ]
