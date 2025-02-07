@@ -28,4 +28,5 @@ urlpatterns = [
     path("shop/", include("apps.shop.urls")),
     path("questionarie/", include("apps.questionarie.urls")),
     path("language/", include("apps.language.urls")),
+    path("player/", include("apps.player.urls")),
 ]
