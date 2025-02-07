@@ -34,4 +34,6 @@ urlpatterns = [
     path("food_item/", include("apps.food_item.urls")),
     path("pet/", include("apps.pet.urls")),
     path("wardrove/", include("apps.wardrove.urls")),
+    path("player_progress/", include("apps.player_progress.urls")),
+    path("trade/", include("apps.trade.urls")),
 ]
