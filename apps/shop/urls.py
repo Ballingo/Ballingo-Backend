@@ -1,11 +1,11 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import FoodViewSet
+from .views import ShopViewSet
 
 router = routers.DefaultRouter()
-router.register(r'food', FoodViewSet)
+router.register(r'shop', ShopViewSet, "shop")
 
 # This generates the URLs for GET/POST/PUT/DELETE
 urlpatterns = [
-    path('food/', include(router.urls)),
+    path('api/v1/', include(router.urls)),
 ]
