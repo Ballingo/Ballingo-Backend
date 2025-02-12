@@ -1,0 +1,19 @@
+POST http://127.0.0.1:8000/api/user/signup/ 
+Content-Type: application/json
+
+{ "username": "adam", "password": "adam", "email": "otsedom_bicicleta@gmail.com" }
+
+###
+
+POST http://127.0.0.1:8000/api/user/login/ 
+Content-Type: application/json
+
+{ "username": "adam", "password": "adam" }
+
+###
+
+GET http://127.0.0.1:8000/api/user/test_token/ 
+Content-Type: application/json 
+Authorization: token 1517218967cba7d2647393e1dad94775e0fc3dc2
+
+{ }
