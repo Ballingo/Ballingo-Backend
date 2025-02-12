@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -46,3 +46,14 @@ class UpdateView(generics.UpdateAPIView):
     def get_queryset(self):
         """Restringe la actualización para que el usuario solo pueda modificar su propia cuenta"""
         return BallingoUser.objects.filter(id=self.request.user.id)
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]  # Solo usuarios autenticados pueden hacer logout
+
+    def post(self, request):
+        try:
+            # Eliminar el token del usuario
+            request.user.auth_token.delete()
+            return Response({"message": "Sesión cerrada correctamente"}, status=status.HTTP_200_OK)
+        except:
+            return Response({"error": "Error al cerrar sesión"}, status=status.HTTP_400_BAD_REQUEST)
