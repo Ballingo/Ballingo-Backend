@@ -1,5 +1,20 @@
 from django.urls import path, re_path, include
-from . import views
+#from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Ballingo API",
+      default_version='v1',
+      description="API developed for the Ballingo project",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="ballingo@team.com"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   #permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('api/user/', include('user.urls')),
@@ -8,4 +23,6 @@ urlpatterns = [
     path('api/', include('clothes.urls')),
     path('api/', include('pet.urls')),
     path('api/', include('questionnarie.urls')),
+
+    path('docs/', schema_view.with_ui('swagger', cache_timeout=0)), # <-- Documenation
 ]
