@@ -51,11 +51,18 @@ INSTALLED_APPS = [
     'question',
     'clothes',
     'pet',
-    'questionnarie',
+    'questionnaire',
     'foodItem',
     'foodList',
     'wardrobe',
     'trade',
+    'language',
+    'shopItem',
+    'realPack',
+    'gamePack',
+    'playerProgress',
+    'inventory',
+    'player',
 ]
 
 MIDDLEWARE = [

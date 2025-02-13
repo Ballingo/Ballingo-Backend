@@ -1,7 +1,7 @@
 from django.db import models
 
 class Pet(models.Model):
-    # playerId = models.ForeignKey('player.Player', on_delete=models.CASCADE, null=True, blank=True)
+    player = models.ForeignKey("player.Player", on_delete=models.CASCADE, related_name="pets", null=True, blank=True)
     language = models.CharField(
         choices=[
             ('en', 'English'), 

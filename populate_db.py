@@ -13,7 +13,7 @@ from user.models import BallingoUser
 from clothes.models import Clothes
 from food.models import Food
 from question.models import Question
-from questionnarie.models import Questionnarie
+from questionnaire.models import Questionnaire
 from foodList.models import FoodList
 from foodItem.models import FoodItem
 from trade.models import Trade
@@ -79,12 +79,12 @@ def populate_questions(n=10):
     print(f"✅ {n} questions created.")
 
 # 🔹 Populate Questionnaires
-def populate_questionnaries(n=5):
-    reset_table(Questionnarie)
+def populate_questionnaires(n=5):
+    reset_table(Questionnaire)
     questions = list(Question.objects.all())
 
     for _ in range(n):
-        q = Questionnarie.objects.create(
+        q = Questionnaire.objects.create(
             name=fake.word().capitalize(),
             level=random.randint(1, 10),
             sublevel=random.randint(1, 5),
@@ -173,9 +173,9 @@ if __name__ == "__main__":
     #populate_clothes()
     #populate_food()
     #populate_questions()
-    #populate_questionnaries()
-    populate_food_list()
-    populate_food_items()
-    populate_trades()
-    populate_wardrobes()
+    populate_questionnaires()
+    #populate_food_list()
+    #populate_food_items()
+    #populate_trades()
+    #populate_wardrobes()
     print("🎉 Database successfully populated.")
