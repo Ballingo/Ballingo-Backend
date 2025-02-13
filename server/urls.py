@@ -17,12 +17,16 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('api/user/', include('user.urls')),
-    path('api/', include('food.urls')),
-    path('api/', include('question.urls')),
-    path('api/', include('clothes.urls')),
-    path('api/', include('pet.urls')),
-    path('api/', include('questionnarie.urls')),
+   path('api/user/', include('user.urls')),
+   path('api/', include('food.urls')),
+   path('api/', include('question.urls')),
+   path('api/', include('clothes.urls')),
+   path('api/', include('pet.urls')),
+   path('api/', include('questionnarie.urls')),
+   path('api/', include('foodItem.urls')),
+   path('api/', include('foodList.urls')),
+   path('api/', include('wardrobe.urls')),
+   path('api/', include('trade.urls')),
 
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0)), # <-- Documenation
+   path('docs/', schema_view.with_ui('swagger', cache_timeout=0)), # <-- Documenation
 ]

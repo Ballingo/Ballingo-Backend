@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     'clothes',
     'pet',
     'questionnarie',
+    'foodItem',
+    'foodList',
+    'wardrobe',
+    'trade',
 ]
 
 MIDDLEWARE = [
