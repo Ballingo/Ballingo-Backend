@@ -45,7 +45,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'user'
+    'drf_yasg',
+    'user',
+    'food',
+    'question',
+    'clothes',
+    'pet',
+    'questionnaire',
+    'foodItem',
+    'foodList',
+    'wardrobe',
+    'trade',
+    'language',
+    'shopItem',
+    'realPack',
+    'gamePack',
+    'playerProgress',
+    'inventory',
+    'player',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +153,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
