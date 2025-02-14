@@ -18,6 +18,13 @@ from foodList.models import FoodList
 from foodItem.models import FoodItem
 from trade.models import Trade
 from wardrobe.models import Wardrobe
+from language.models import Language
+from player.models import Player
+from shopItem.models import ShopItem
+from realPack.models import RealPack
+from playerProgress.models import PlayerProgress
+from inventory.models import Inventory
+from gamePack.models import GamePack
 
 fake = Faker()
 fake.add_provider(FoodProvider)
@@ -28,7 +35,7 @@ def reset_table(model):
     print(f"🔹 Resetting table: {table_name}")
     with connection.cursor() as cursor:
         cursor.execute(f'TRUNCATE TABLE "{table_name}" RESTART IDENTITY CASCADE;')
-    print(f"🗑️ Table '{table_name}' cleared and IDs reset.")
+    print(f"🗑️ Table '{table_name}' cleared and IDs reset. \n")
 
 # 🔹 Populate BallingoUser
 def populate_users(n=10):
@@ -39,7 +46,7 @@ def populate_users(n=10):
             email=fake.email(),
             password=f"password123{n}"
         )
-    print(f"✅ {n} users created.")
+    print(f"✅ {n} users created. \n")
 
 # 🔹 Populate Clothes
 def populate_clothes(n=10):
@@ -50,7 +57,7 @@ def populate_clothes(n=10):
             type=random.choice(clothes_types),
             style=None
         )
-    print(f"✅ {n} clothing items created.")
+    print(f"✅ {n} clothing items created. \n")
 
 # 🔹 Populate Food with Real Food Names
 def populate_food(n=10):
@@ -62,7 +69,7 @@ def populate_food(n=10):
             hunger_points=random.randint(1, 100),
             image=None
         )
-    print(f"✅ {n} food items created.")
+    print(f"✅ {n} food items created. \n")
 
 # 🔹 Populate Questions
 def populate_questions(n=10):
@@ -76,40 +83,46 @@ def populate_questions(n=10):
             correct_answer=correct_answer,
             answers=answers
         )
-    print(f"✅ {n} questions created.")
+    print(f"✅ {n} questions created. \n")
 
-# 🔹 Populate Questionnaires
+# 🔹 Populate Questionnaires (now with language field)
 def populate_questionnaires(n=5):
     reset_table(Questionnaire)
-    questions = list(Question.objects.all())
+    
+    questions = list(Question.objects.all())  # Get all questions
+    languages = list(Language.objects.all())  # Get all languages
+
+    if not questions or not languages:
+        print("⚠️ Not enough questions or languages. Populate Question and Language first. \n")
+        return
 
     for _ in range(n):
         q = Questionnaire.objects.create(
             name=fake.word().capitalize(),
             level=random.randint(1, 10),
             sublevel=random.randint(1, 5),
+            language=random.choice(languages)  # Assign a random language
         )
-        
-        if questions:
-            q.questions.add(*random.sample(questions, min(len(questions), 5)))
 
-    print(f"✅ {n} questionnaires created.")
+        # Assign random questions (up to 5)
+        q.questions.add(*random.sample(questions, min(len(questions), 5)))
 
+    print(f"✅ {n} questionnaires created. \n")
 
 # 🔹 Populate FoodList (for each user)
 def populate_food_list(n=10):
     reset_table(FoodList)
-    users = list(BallingoUser.objects.all())
+    players = list(Player.objects.all())
 
-    if not users:
-        print("⚠️ No users found. Please populate BallingoUser first.")
+    if not players:
+        print("⚠️ No players found. Please populate BallingoUser first. \n")
         return
 
     for _ in range(n):
-        user = random.choice(users)
-        FoodList.objects.create(user=user)
+        user = random.choice(players)
+        FoodList.objects.create(player=players)
 
-    print(f"✅ {n} food lists created.")
+    print(f"✅ {n} food lists created. \n")
 
 # 🔹 Populate FoodItem (assigning food to FoodLists)
 def populate_food_items(n=20):
@@ -118,7 +131,7 @@ def populate_food_items(n=20):
     foods = list(Food.objects.all())
 
     if not food_lists or not foods:
-        print("⚠️ No food lists or foods found. Populate FoodList and Food first.")
+        print("⚠️ No food lists or foods found. Populate FoodList and Food first. \n")
         return
 
     for _ in range(n):
@@ -128,54 +141,194 @@ def populate_food_items(n=20):
             quantity=random.randint(1, 5)  # Assign random quantity
         )
 
-    print(f"✅ {n} food items added to food lists.")
+    print(f"✅ {n} food items added to food lists. \n")
 
 # 🔹 Populate Trade (create random trades between foods)
 def populate_trades(n=10):
     reset_table(Trade)
-    users = list(BallingoUser.objects.all())
+    players = list(Player.objects.all())
     foods = list(Food.objects.all())
 
-    if not users or len(foods) < 2:
-        print("⚠️ Not enough users or foods. Populate BallingoUser and Food first.")
+    if not players or len(foods) < 2:
+        print("⚠️ Not enough players or foods. Populate Player and Food first. \n")
         return
 
     for _ in range(n):
         in_food, out_food = random.sample(foods, 2)  # Ensure different foods
         Trade.objects.create(
-            user=random.choice(users),
+            user=random.choice(players),
             isActive=random.choice([True, False]),
             in_food=in_food,
             out_food=out_food
         )
 
-    print(f"✅ {n} trades created.")
+    print(f"✅ {n} trades created. \n")
 
 # 🔹 Populate Wardrobe (assign random clothes to users)
 def populate_wardrobes(n=10):
     reset_table(Wardrobe)
-    users = list(BallingoUser.objects.all())
+    players = list(Player.objects.all())
     clothes = list(Clothes.objects.all())
 
-    if not users or not clothes:
-        print("⚠️ No users or clothes found. Populate BallingoUser and Clothes first.")
+    if not players or not clothes:
+        print("⚠️ No players or clothes found. Populate Player and Clothes first. \n")
         return
 
     for _ in range(n):
-        wardrobe = Wardrobe.objects.create(user=random.choice(users))
+        wardrobe = Wardrobe.objects.create(player=random.choice(players))
         wardrobe.items.set(random.sample(clothes, min(len(clothes), random.randint(1, 5))))  # Assign up to 5 clothes
 
-    print(f"✅ {n} wardrobes created.")
+    print(f"✅ {n} wardrobes created. \n")
+
+# 🔹 Populate Players
+def populate_players(n=10):
+    reset_table(Player)
+    users = list(BallingoUser.objects.all())
+    inventories = list(Inventory.objects.all())
+    languages = list(Language.objects.all())
+
+    if not users or not inventories or not languages:
+        print("⚠️ Not enough users, inventories, or languages. Populate them first. \n")
+        return
+
+    for _ in range(n):
+        player = Player.objects.create(
+            user=random.choice(users),
+            inventory=random.choice(inventories),
+            actualLanguage=random.choice(['en', 'es', 'de', 'ar', 'ja'])
+        )
+        player.languages.add(*random.sample(languages, min(len(languages), 3)))  # Assign up to 3 languages
+
+    print(f"✅ {n} players created. \n")
+
+# 🔹 Populate PlayerProgress
+def populate_player_progress(n=10):
+    reset_table(PlayerProgress)
+    players = list(Player.objects.all())
+    questionnaires = list(Questionnaire.objects.all())
+
+    if not players or not questionnaires:
+        print("⚠️ Not enough players or questionnaires. Populate Player and Questionnaire first. \n")
+        return
+
+    for _ in range(n):
+        PlayerProgress.objects.create(
+            player=random.choice(players),
+            questionnaire=random.choice(questionnaires),
+            completed=random.choice([True, False]),
+            score=random.randint(0, 100),
+            attempts=random.randint(1, 5)
+        )
+
+    print(f"✅ {n} player progress records created. \n")
+
+# 🔹 Populate ShopItems
+def populate_shop_items(n=15):
+    reset_table(ShopItem)
+    clothes = list(Clothes.objects.all())
+
+    for _ in range(n):
+        item_type = random.choice(['lives', 'coins', 'clothes'])
+        shop_item = ShopItem.objects.create(
+            type=item_type,
+            quantity=random.randint(1, 10),
+            clothes=random.choice(clothes) if item_type == 'clothes' and clothes else None
+        )
+
+    print(f"✅ {n} shop items created. \n")
+
+# 🔹 Populate RealPacks
+def populate_real_packs(n=10):
+    reset_table(RealPack)
+    shop_items = list(ShopItem.objects.all())
+
+    if not shop_items:
+        print("⚠️ No shop items found. Populate ShopItem first. \n")
+        return
+
+    for _ in range(n):
+        pack = RealPack.objects.create(
+            price=random.randint(5, 50),
+            name=fake.word().capitalize(),
+            description=fake.sentence(),
+            category=random.choice(['lastOportunity', 'new', 'popular'])
+        )
+        pack.items.add(*random.sample(shop_items, min(len(shop_items), 3)))  # Add up to 3 shop items
+
+    print(f"✅ {n} real packs created. \n")
+
+# 🔹 Populate Languages (Predefined List)
+def populate_languages():
+    reset_table(Language)
+    
+    languages = ['en', 'es', 'de', 'ar', 'ja']
+    for lang in languages:
+        Language.objects.create(language=lang)
+
+    print(f"✅ {len(languages)} languages created. \n")
+
+# 🔹 Populate Inventories
+def populate_inventories(n=10):
+    reset_table(Inventory)
+    wardrobes = list(Wardrobe.objects.all())
+    food_lists = list(FoodList.objects.all())
+
+    if not wardrobes or not food_lists:
+        print("⚠️ Not enough wardrobes or food lists. Populate them first. \n")
+        return
+
+    for _ in range(n):
+        Inventory.objects.create(
+            clothes_inventory=random.choice(wardrobes),
+            food_inventory=random.choice(food_lists),
+            coins=random.randint(0, 1000),
+            livesCounter=random.randint(0, 5)
+        )
+
+    print(f"✅ {n} inventories created. \n")
+
+# 🔹 Populate GamePacks
+def populate_game_packs(n=10):
+    reset_table(GamePack)
+    shop_items = list(ShopItem.objects.all())
+
+    if not shop_items:
+        print("⚠️ No shop items found. Populate ShopItem first. \n")
+        return
+
+    for _ in range(n):
+        pack = GamePack.objects.create(
+            price=random.randint(5, 50),
+            name=fake.word().capitalize(),
+            description=fake.sentence(),
+            category=random.choice(['lastOportunity', 'new', 'popular'])
+        )
+        pack.items.add(*random.sample(shop_items, min(len(shop_items), 3)))  # Add up to 3 shop items
+
+    print(f"✅ {n} game packs created. \n")
 
 # Run functions
 if __name__ == "__main__":
+    # 1️⃣ Populate Independent Tables First
+    #populate_languages()
     #populate_users()
     #populate_clothes()
     #populate_food()
     #populate_questions()
-    populate_questionnaires()
-    #populate_food_list()
-    #populate_food_items()
-    #populate_trades()
-    #populate_wardrobes()
+    #populate_shop_items()
+    
+    # 2️⃣ Populate Tables That Depend on the Above
+    #populate_questionnaires()
+    populate_players()
+    populate_wardrobes()
+    populate_food_list()
+    populate_trades()
+    #populate_real_packs()
+    #populate_game_packs()
+    
+    # 3️⃣ Populate Tables With Many-to-Many or Foreign Key Dependencies
+    populate_food_items()
+    populate_player_progress()
+    populate_inventories()
+
     print("🎉 Database successfully populated.")
