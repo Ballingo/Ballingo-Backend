@@ -100,7 +100,7 @@ def populate_questionnaires(n=5):
         q = Questionnaire.objects.create(
             name=fake.word().capitalize(),
             level=random.randint(1, 10),
-            sublevel=random.randint(1, 5),
+            unlocked=random.choice([True, False]),
             language=random.choice(languages)  # Assign a random language
         )
 
@@ -319,16 +319,16 @@ if __name__ == "__main__":
     
     # 2️⃣ Populate Tables That Depend on the Above
     #populate_questionnaires()
-    populate_players()
-    populate_wardrobes()
-    populate_food_list()
-    populate_trades()
+    #populate_players()
+    #populate_wardrobes()
+    #populate_food_list()
+    #populate_trades()
     #populate_real_packs()
     #populate_game_packs()
     
     # 3️⃣ Populate Tables With Many-to-Many or Foreign Key Dependencies
-    populate_food_items()
-    populate_player_progress()
-    populate_inventories()
+    #populate_food_items()
+    #populate_player_progress()
+    #populate_inventories()
 
     print("🎉 Database successfully populated.")
