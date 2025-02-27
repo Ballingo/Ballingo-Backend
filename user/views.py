@@ -11,6 +11,22 @@ class SignupView(generics.CreateAPIView):
     serializer_class = BallingoUserSerializer
     permission_classes = [permissions.AllowAny]
 
+    def post(self, request):
+        serializer = BallingoUserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()  # Crea el usuario
+            token, created = Token.objects.get_or_create(user=user)  # Genera el token
+
+            return Response({
+                'token': token.key,
+                'user_id': user.id,
+                'username': user.username,
+                'email': user.email
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -29,15 +45,15 @@ class LoginView(APIView):
             })
         return Response({'error': 'Credenciales inválidas'}, status=400)
 
-class DeleteView(generics.DestroyAPIView):
+class GetView(generics.RetrieveAPIView):
     queryset = BallingoUser.objects.all()
     serializer_class = BallingoUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Restringe la eliminación para que el usuario solo pueda eliminar su propia cuenta"""
+        """Restringe la consulta para que el usuario solo pueda ver su propia información"""
         return BallingoUser.objects.filter(id=self.request.user.id)
-    
+
 class UpdateView(generics.UpdateAPIView):
     queryset = BallingoUser.objects.all()
     serializer_class = BallingoUserSerializer
@@ -45,6 +61,15 @@ class UpdateView(generics.UpdateAPIView):
 
     def get_queryset(self):
         """Restringe la actualización para que el usuario solo pueda modificar su propia cuenta"""
+        return BallingoUser.objects.filter(id=self.request.user.id)
+
+class DeleteView(generics.DestroyAPIView):
+    queryset = BallingoUser.objects.all()
+    serializer_class = BallingoUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Restringe la eliminación para que el usuario solo pueda eliminar su propia cuenta"""
         return BallingoUser.objects.filter(id=self.request.user.id)
 
 class LogoutView(APIView):
