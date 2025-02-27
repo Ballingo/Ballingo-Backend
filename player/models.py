@@ -12,6 +12,8 @@ class Player(models.Model):
             ('ar', 'Arabic'),
             ('ja', 'Japanese')
         ], 
-        max_length=20
+        max_length=20,
+        blank=True,
+        null=True
     )
     
