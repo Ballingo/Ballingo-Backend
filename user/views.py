@@ -45,15 +45,15 @@ class LoginView(APIView):
             })
         return Response({'error': 'Credenciales inválidas'}, status=400)
 
-class DeleteView(generics.DestroyAPIView):
+class GetView(generics.RetrieveAPIView):
     queryset = BallingoUser.objects.all()
     serializer_class = BallingoUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Restringe la eliminación para que el usuario solo pueda eliminar su propia cuenta"""
+        """Restringe la consulta para que el usuario solo pueda ver su propia información"""
         return BallingoUser.objects.filter(id=self.request.user.id)
-    
+
 class UpdateView(generics.UpdateAPIView):
     queryset = BallingoUser.objects.all()
     serializer_class = BallingoUserSerializer
@@ -61,6 +61,15 @@ class UpdateView(generics.UpdateAPIView):
 
     def get_queryset(self):
         """Restringe la actualización para que el usuario solo pueda modificar su propia cuenta"""
+        return BallingoUser.objects.filter(id=self.request.user.id)
+
+class DeleteView(generics.DestroyAPIView):
+    queryset = BallingoUser.objects.all()
+    serializer_class = BallingoUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Restringe la eliminación para que el usuario solo pueda eliminar su propia cuenta"""
         return BallingoUser.objects.filter(id=self.request.user.id)
 
 class LogoutView(APIView):
