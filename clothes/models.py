@@ -10,4 +10,4 @@ class Clothes(models.Model): # type tiene que ser un ENUM { hat, tshirt, shoes, 
         ], 
         max_length=20
     )
-    style = models.ImageField(upload_to='clothes/', null=True, blank=True)
+    image_path = models.CharField(max_length=255, blank=True, null=True)

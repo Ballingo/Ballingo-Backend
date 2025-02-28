@@ -331,11 +331,16 @@ if __name__ == "__main__":
     #populate_player_progress()
     #populate_inventories()
 
-    Food.objects.create(
+    """Food.objects.create(
         name="Squid Rings",
         language='es',
         hunger_points=10,
         image_path="/assets/inventory/food/es/squid_rings.png"
+    )"""
+
+    Clothes.objects.create(
+        type='hat',
+        image_path = "winter_hat"
     )
 
     print("🎉 Database successfully populated.")
