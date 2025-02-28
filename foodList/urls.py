@@ -1,8 +1,8 @@
-from django.urls import path, include
-from . import views
-from rest_framework.routers import DefaultRouter
+from django.urls import path
+from .views import FoodListView, AddFoodToListView, GetFoodListByPlayerView
 
-router = DefaultRouter()
-router.register(r'foodList', views.FoodListViewSet, basename='foodList')
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('food-lists/', FoodListView.as_view(), name='food_list'), 
+    path('add-food/', AddFoodToListView.as_view(), name='add_food_to_list'),
+    path('food-list/<int:player_id>/', GetFoodListByPlayerView.as_view(), name='get_food_list_by_player'),  # Nueva ruta
+]

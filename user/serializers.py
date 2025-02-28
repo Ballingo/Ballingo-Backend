@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from .models import BallingoUser
 from django.contrib.auth.hashers import make_password
+from inventory.models import Inventory
+from wardrobe.models import Wardrobe
+from foodList.models import FoodList
+from player.models import Player
 
 class BallingoUserSerializer(serializers.ModelSerializer):
     class Meta(object):
@@ -10,6 +14,20 @@ class BallingoUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = BallingoUser.objects.create_user(**validated_data)
+
+        wardrobe = Wardrobe.objects.create()
+        food_list = FoodList.objects.create()
+        
+        inventory = Inventory.objects.create(clothes_inventory=wardrobe, food_inventory=food_list)
+
+        player = Player.objects.create(user=user, inventory=inventory)
+
+        wardrobe.player = player
+        wardrobe.save()
+
+        food_list.player = player
+        food_list.save()
+        
         return user
     
     def update(self, instance, validated_data):
