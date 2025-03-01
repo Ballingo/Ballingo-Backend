@@ -93,6 +93,36 @@ class InventoryViewSet(viewsets.ModelViewSet):
             return Response({"coins": coins}, status=status.HTTP_200_OK)
         
         except Player.DoesNotExist:
-            return Response({"error": "Player no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
         except Inventory.DoesNotExist:
-            return Response({"error": "Inventory no encontrado para el Player"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True, methods=['put'], url_path='update-coins')
+    def update_player_coins(self, request, pk=None):
+        player_id = pk
+        amount = request.data.get('coins')
+
+        try:
+            amount = int(amount)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid value for 'coins'. It must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            player = Player.objects.get(id=int(player_id))
+            inventory = player.inventory
+
+            new_coins = inventory.coins + amount
+
+            if new_coins < 0:
+                return Response({"error": "Not enough coins."}, status=status.HTTP_400_BAD_REQUEST)
+
+            inventory.coins = new_coins
+            inventory.save()
+
+            return Response({"message": "Succes", "New_balance": inventory.coins}, status=status.HTTP_200_OK)
+
+        except Player.DoesNotExist:
+            return Response({"error": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Inventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
