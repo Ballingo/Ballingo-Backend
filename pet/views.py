@@ -28,7 +28,7 @@ class PetViewSet(viewsets.ModelViewSet):
         return Response({"isDead": pet.isDead})
 
     # 🔹 Setter para `hunger`
-    @action(detail=True, methods=['post'])  # Usa 'post' o 'patch' para modificar valores
+    @action(detail=True, methods=['put'])  # Usa 'post' o 'patch' para modificar valores
     def set_hunger(self, request, pk=None):
         pet = self.get_object()
         hunger_value = request.data.get("hunger")
@@ -43,7 +43,7 @@ class PetViewSet(viewsets.ModelViewSet):
         return Response({"error": "Missing hunger value"}, status=status.HTTP_400_BAD_REQUEST)
 
     # 🔹 Setter para `is_dead`
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['put'])
     def set_is_dead(self, request, pk=None):
         pet = self.get_object()
         is_dead_value = request.data.get("isDead")

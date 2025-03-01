@@ -80,3 +80,19 @@ class InventoryViewSet(viewsets.ModelViewSet):
             return Response({"error": "Wardrobe no encontrado en el Inventory"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['get'], url_path='get-coins')
+    def get_player_coins(self, request, pk=None):
+        player_id = pk
+
+        try:
+            player = Player.objects.get(id=int(player_id))
+            inventory = player.inventory
+            coins = inventory.coins
+
+            return Response({"coins": coins}, status=status.HTTP_200_OK)
+        
+        except Player.DoesNotExist:
+            return Response({"error": "Player no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except Inventory.DoesNotExist:
+            return Response({"error": "Inventory no encontrado para el Player"}, status=status.HTTP_404_NOT_FOUND)
