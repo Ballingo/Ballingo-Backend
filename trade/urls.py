@@ -1,8 +1,10 @@
 from django.urls import path, include
-from .views import TradeViewSet
 from rest_framework.routers import DefaultRouter
+from .views import TradeViewSet
 
 router = DefaultRouter()
 router.register(r'trade', TradeViewSet, basename='trade')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("", include(router.urls)),  # Rutas normales del router
+]
