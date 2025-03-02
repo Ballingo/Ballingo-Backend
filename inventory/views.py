@@ -10,6 +10,7 @@ from player.models import Player
 from clothes.models import Clothes
 from rest_framework.decorators import action
 from wardrobe.serializers import WardrobeSerializer
+from rest_framework.views import APIView
 
 class InventoryViewSet(viewsets.ModelViewSet):
     queryset = Inventory.objects.all()
@@ -53,22 +54,15 @@ class InventoryViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='get-wardrobe')
     def get_wardrobe(self, request, pk=None):
-        """
-        Obtiene el Wardrobe de un Player a partir de su player_id en la URL.
-        """
-        player_id = pk  # Ahora usamos `pk` en lugar de `query_params.get()`
+        player_id = pk
 
         try:
-            # Obtener el Player
             player = Player.objects.get(id=int(player_id))
 
-            # Obtener el Inventory desde el Player
             inventory = player.inventory
 
-            # Obtener el Wardrobe desde el Inventory
             wardrobe = inventory.clothes_inventory
 
-            # Serializar y devolver el Wardrobe
             serializer = WardrobeSerializer(wardrobe)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -126,3 +120,71 @@ class InventoryViewSet(viewsets.ModelViewSet):
         except Inventory.DoesNotExist:
             return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
 
+class GetPlayerLivesCounter(APIView):
+    def get(self, request, player_id):
+        try:
+            player = Player.objects.get(id=int(player_id))
+            inventory = player.inventory
+            lives_counter = inventory.livesCounter
+
+            return Response({"lives_counter": lives_counter}, status=status.HTTP_200_OK)
+        
+        except Player.DoesNotExist:
+            return Response({"error": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Inventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class UpdatePlayerLivesCounter(APIView):
+    def put(self, request, player_id):
+        amount = request.data.get('lives_counter')
+
+        try:
+            amount = int(amount)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid value for 'lives_counter'. It must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            player = Player.objects.get(id=int(player_id))
+            inventory = player.inventory
+
+            new_lives_counter = inventory.livesCounter + amount
+
+            if new_lives_counter < 0:
+                return Response({"error": "Not enough lives."}, status=status.HTTP_400_BAD_REQUEST)
+
+            inventory.livesCounter = new_lives_counter
+            inventory.save()
+
+            return Response({"message": "Succes", "New_lives_counter": inventory.livesCounter}, status=status.HTTP_200_OK)
+
+        except Player.DoesNotExist:
+            return Response({"error": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Inventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class UpdatePlayerWardrobe(APIView):
+    def put(self, request, player_id):
+        clothes_id = request.data.get('clothes_id')
+
+        try:
+            clothes = Clothes.objects.get(id=int(clothes_id))
+        except Clothes.DoesNotExist:
+            return Response({"error": "Clothes not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            player = Player.objects.get(id=int(player_id))
+            inventory = player.inventory
+            wardrobe = inventory.clothes_inventory
+
+            wardrobe.items.add(clothes)
+
+            return Response({"message": f"{clothes.type} added to the wardrobe"}, status=status.HTTP_200_OK)
+
+        except Player.DoesNotExist:
+            return Response({"error": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Inventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Wardrobe.DoesNotExist:
+            return Response({"error": "Wardrobe not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

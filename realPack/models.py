@@ -5,11 +5,14 @@ class RealPack(models.Model): # price, name, description, image, category, items
     name = models.CharField(max_length=100)
     description = models.TextField()
     image_path = models.CharField(max_length=255, blank=True, null=True)
-    category = models.CharField(
+    rarity = models.CharField(
         choices=[
-            ('lastOportunity', 'Last Oportunity'),
-            ('new', 'New'),
-            ('popular', 'Popular')
-        ]
+            ('legendary', 'Legendary'),
+            ('epic', 'Epic'),
+            ('rare', 'Rare'),
+            ('uncommon', 'Uncommon'),
+            ('common', 'Common'),
+        ],
+        default='common'
     )
     items = models.ManyToManyField('shopItem.ShopItem', related_name="real_packs")
