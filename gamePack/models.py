@@ -4,7 +4,7 @@ class GamePack(models.Model): # price, name, description, image, category, items
     price = models.IntegerField()
     name = models.CharField(max_length=100)
     description = models.TextField()
-    image = models.ImageField(upload_to='gamePack/', null=True, blank=True)
+    #image_path = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(
         choices=[
             ('lastOportunity', 'Last Oportunity'),
