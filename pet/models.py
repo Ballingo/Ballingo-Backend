@@ -14,4 +14,5 @@ class Pet(models.Model):
     )
     hunger = models.IntegerField(default=100)
     isDead = models.BooleanField()
+    accesories = models.ManyToManyField("clothes.Clothes", related_name="pets", blank=True, null=True)
 
