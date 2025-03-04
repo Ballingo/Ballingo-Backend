@@ -1,9 +1,12 @@
+import json
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
 from .models import Pet
 from .serializers import PetSerializer
+from clothes.models import Clothes
+from django.shortcuts import get_object_or_404
 
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
@@ -54,3 +57,44 @@ class PetViewSet(viewsets.ModelViewSet):
             return Response({"message": "isDead updated successfully", "isDead": pet.isDead}, status=status.HTTP_200_OK)
 
         return Response({"error": "Missing isDead value"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['get'])
+    def get_accesories(self, request, pk=None):
+        pet = self.get_object()
+        accesories = pet.accesories.values("id", "image_path", "type")
+        return Response({"accesories": list(accesories)})
+
+    @action(detail=True, methods=['put'])
+    def set_accesories(self, request, pk=None):
+        print("Received request:", json.loads(request.body))
+        pet = self.get_object()
+        accesories_id = request.data.get("accesories")
+
+        if accesories_id is not None:
+            try:
+                if accesories_id == "0" or accesories_id == 0:
+                    pet.accesories.clear()
+                    return Response({"message": "All accesories removed"}, status=status.HTTP_200_OK)
+
+                accesories_id = int(accesories_id)
+
+                clothes = get_object_or_404(Clothes, id=accesories_id)
+
+                current_accesories = pet.accesories.all()
+
+                existing_accesory = next((a for a in current_accesories if a.type == clothes.type), None)
+
+                if existing_accesory:
+                    pet.accesories.remove(existing_accesory)
+
+                pet.accesories.add(clothes)
+
+                return Response({
+                    "message": "Accessory updated successfully",
+                    "accesories": list(pet.accesories.values("id", "image_path", "type"))
+                }, status=status.HTTP_200_OK)
+
+            except ValueError:
+                return Response({"error": "Invalid accesories value"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"error": "Missing accesories value"}, status=status.HTTP_400_BAD_REQUEST)

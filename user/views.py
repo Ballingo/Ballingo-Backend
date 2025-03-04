@@ -5,6 +5,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from .models import BallingoUser
 from .serializers import BallingoUserSerializer
+from django.utils.timezone import now
+from django.shortcuts import get_object_or_404
 
 class SignupView(generics.CreateAPIView):
     queryset = BallingoUser.objects.all()
@@ -36,6 +38,9 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
 
         if user:
+            user.last_login = now()
+            user.save(update_fields=['last_login'])
+
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'token': token.key,
@@ -82,3 +87,15 @@ class LogoutView(APIView):
             return Response({"message": "Sesión cerrada correctamente"}, status=status.HTTP_200_OK)
         except:
             return Response({"error": "Error al cerrar sesión"}, status=status.HTTP_400_BAD_REQUEST)
+
+class LastLoginView(generics.RetrieveAPIView):
+    queryset = BallingoUser.objects.all()
+    serializer_class = BallingoUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BallingoUser.objects.filter(id=self.request.user.id)
+
+    def get(self, request, *args, **kwargs):
+        user = self.get_object()
+        return Response({"last_login": user.last_login})
