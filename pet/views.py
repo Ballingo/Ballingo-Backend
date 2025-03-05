@@ -98,3 +98,22 @@ class PetViewSet(viewsets.ModelViewSet):
                 return Response({"error": "Invalid accesories value"}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"error": "Missing accesories value"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(detail=False, methods=['get'])
+    def get_pet_by_player_and_language(self, request):
+        """
+        Obtiene una mascota por player_id y language.
+        """
+        player_id = request.query_params.get('player_id')
+        language = request.query_params.get('language')
+
+        if not player_id or not language:
+            return Response({"error": "Se requieren player_id y language"}, status=status.HTTP_400_BAD_REQUEST)
+
+        pet = Pet.objects.filter(player_id=player_id, language=language).first()
+
+        if not pet:
+            return Response({"error": "No se encontró una mascota con esos parámetros"}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(PetSerializer(pet).data, status=status.HTTP_200_OK)
