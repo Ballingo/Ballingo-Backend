@@ -100,8 +100,7 @@ def populate_questionnaires(n=5):
         q = Questionnaire.objects.create(
             name=fake.word().capitalize(),
             level=random.randint(1, 10),
-            unlocked=random.choice([True, False]),
-            language=random.choice(languages)  # Assign a random language
+            language=random.choice(languages),  # Assign a random language
         )
 
         # Assign random questions (up to 5)
@@ -217,7 +216,8 @@ def populate_player_progress(n=10):
             questionnaire=random.choice(questionnaires),
             completed=random.choice([True, False]),
             score=random.randint(0, 100),
-            attempts=random.randint(1, 5)
+            attempts=random.randint(1, 5),
+            unlocked=False
         )
 
     print(f"✅ {n} player progress records created. \n")
@@ -314,11 +314,11 @@ if __name__ == "__main__":
     #populate_users()
     #populate_clothes()
     #populate_food()
-    #populate_questions()
+    populate_questions()
     #populate_shop_items()
     
     # 2️⃣ Populate Tables That Depend on the Above
-    #populate_questionnaires()
+    populate_questionnaires()
     #populate_players()
     #populate_wardrobes()
     #populate_food_list()
@@ -338,9 +338,9 @@ if __name__ == "__main__":
         image_path="/assets/inventory/food/es/squid_rings.png"
     )"""
 
-    Clothes.objects.create(
+    """Clothes.objects.create(
         type='hat',
         image_path = "winter_hat"
-    )
+    )"""
 
     print("🎉 Database successfully populated.")
