@@ -99,3 +99,17 @@ class LastLoginView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         user = self.get_object()
         return Response({"last_login": user.last_login})
+
+class SetLastLoginView(generics.UpdateAPIView):
+    queryset = BallingoUser.objects.all()
+    serializer_class = BallingoUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return BallingoUser.objects.filter(id=self.request.user.id)
+
+    def put(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.last_login = now()
+        user.save(update_fields=['last_login'])
+        return Response({"message": "Last login updated correctly"})
