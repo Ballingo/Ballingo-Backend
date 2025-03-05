@@ -48,3 +48,35 @@ class PlayerProgressViewSet(viewsets.ModelViewSet):
         serializer = PlayerProgressSerializer(player_progress)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+    @action(detail=False, methods=['post'])
+    def get_levels(self, request):
+        """
+        Obtiene los niveles (PlayerProgress) de un jugador en un idioma específico.
+        """
+        player_id = request.data.get('player_id')
+        language_code = request.data.get('language_code')
+
+        if not player_id or not language_code:
+            return Response({"error": "Se requieren player_id y language_code"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            player = Player.objects.get(id=player_id)
+        except Player.DoesNotExist:
+            return Response({"error": "Player no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            language = Language.objects.get(language=language_code)
+        except Language.DoesNotExist:
+            return Response({"error": "Idioma no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Obtener los cuestionarios en el idioma especificado
+        questionnaires = Questionnaire.objects.filter(language=language)
+
+        # Obtener los PlayerProgress asociados al player y a esos cuestionarios
+        player_progress = PlayerProgress.objects.filter(player=player, questionnaire__in=questionnaires)
+
+        # Serializar y devolver los datos
+        serialized_data = PlayerProgressSerializer(player_progress, many=True).data
+        return Response(serialized_data, status=status.HTTP_200_OK)
