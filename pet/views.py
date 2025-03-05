@@ -31,20 +31,25 @@ class PetViewSet(viewsets.ModelViewSet):
         return Response({"isDead": pet.isDead})
 
     # 🔹 Setter para `hunger`
-    @action(detail=True, methods=['put'])  # Usa 'post' o 'patch' para modificar valores
+    @action(detail=True, methods=['put'])
     def set_hunger(self, request, pk=None):
         pet = self.get_object()
         hunger_value = request.data.get("hunger")
 
         if hunger_value is not None:
             try:
-                if int(hunger_value) < 0:
-                    return Response({"error": "Hunger value cannot be negative"}, status=status.HTTP_400_BAD_REQUEST)
                 
                 if pet.hunger == 100:
                     return Response({"error": "Pet is already full"}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    pet.hunger += int(hunger_value)
+                    new_hunger = pet.hunger + int(hunger_value)
+
+                    if new_hunger < 0:
+                        pet.hunger = 0
+                        pet.save()
+                        return Response({"message": "Hunger updated successfully", "hunger": pet.hunger}, status=status.HTTP_200_OK)
+
+                    pet.hunger = new_hunger
                     pet.save()
                     return Response({"message": "Hunger updated successfully", "hunger": pet.hunger}, status=status.HTTP_200_OK)
             except ValueError:
