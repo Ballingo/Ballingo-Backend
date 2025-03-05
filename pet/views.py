@@ -7,6 +7,7 @@ from .models import Pet
 from .serializers import PetSerializer
 from clothes.models import Clothes
 from django.shortcuts import get_object_or_404
+from player.models import Player
 
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
@@ -130,3 +131,27 @@ class PetViewSet(viewsets.ModelViewSet):
             return Response({"error": "No se encontró una mascota con esos parámetros"}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(PetSerializer(pet).data, status=status.HTTP_200_OK)
+    
+
+    @action(detail=False, methods=['post'])
+    def has_pet(self, request):
+        """
+        Verifica si un jugador tiene una mascota en el idioma especificado y la devuelve si existe.
+        """
+        player_id = request.data.get('player_id')
+        language_code = request.data.get('language_code')
+
+        if not player_id or not language_code:
+            return Response({"error": "Se requieren player_id y language_code"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            player = Player.objects.get(id=player_id)
+        except Player.DoesNotExist:
+            return Response({"error": "Player no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+        pet = Pet.objects.filter(player=player, language=language_code).first()
+
+        if pet:
+            return Response(PetSerializer(pet).data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "El jugador no tiene una mascota en este idioma"}, status=status.HTTP_404_NOT_FOUND)
