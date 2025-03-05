@@ -38,8 +38,6 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
 
         if user:
-            user.last_login = now()
-            user.save(update_fields=['last_login'])
 
             token, created = Token.objects.get_or_create(user=user)
             return Response({

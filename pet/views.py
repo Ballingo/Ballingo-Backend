@@ -38,20 +38,22 @@ class PetViewSet(viewsets.ModelViewSet):
 
         if hunger_value is not None:
             try:
-                
-                if pet.hunger == 100:
-                    return Response({"error": "Pet is already full"}, status=status.HTTP_400_BAD_REQUEST)
+
+                new_hunger = pet.hunger + int(hunger_value)
+
+                if new_hunger < 0:
+                    pet.hunger = 0
+                    pet.save()
+                    return Response({"message": "Hunger updated successfully", "hunger": pet.hunger}, status=status.HTTP_200_OK)
+                elif new_hunger >= 100:
+                    pet.hunger = 100
+                    pet.save()
+                    return Response({"message": "Hunger updated successfully", "hunger": pet.hunger}, status=status.HTTP_200_OK)
                 else:
-                    new_hunger = pet.hunger + int(hunger_value)
-
-                    if new_hunger < 0:
-                        pet.hunger = 0
-                        pet.save()
-                        return Response({"message": "Hunger updated successfully", "hunger": pet.hunger}, status=status.HTTP_200_OK)
-
                     pet.hunger = new_hunger
                     pet.save()
                     return Response({"message": "Hunger updated successfully", "hunger": pet.hunger}, status=status.HTTP_200_OK)
+                
             except ValueError:
                 return Response({"error": "Invalid hunger value"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Missing hunger value"}, status=status.HTTP_400_BAD_REQUEST)
