@@ -71,7 +71,7 @@ class PlayerProgressViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
-    def get_levels(self, request):
+    def get_user_levels(self, request):
         """
         Obtiene los niveles (PlayerProgress) de un jugador en un idioma específico.
         """
@@ -100,3 +100,13 @@ class PlayerProgressViewSet(viewsets.ModelViewSet):
         # Serializar y devolver los datos
         serialized_data = PlayerProgressSerializer(player_progress, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['put'])
+    def set_completed(self, request):
+
+        player_progress_id = request.data.get('player_progress_id')
+
+        player_progress = PlayerProgress.objects.get(id = player_progress_id)
+        player_progress.completed = True
+        player_progress.save()
+        return Response({"message": "PlayerProgress actualizado"}, status=status.HTTP_200_OK)
