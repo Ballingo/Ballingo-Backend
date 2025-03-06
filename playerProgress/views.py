@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from .models import PlayerProgress
 from .serializers import PlayerProgressSerializer
@@ -49,6 +50,25 @@ class PlayerProgressViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
+    @action(detail=False, methods=['get'])
+    def get_progress(self, request):
+        player_id = request.query_params.get('player_id')
+        language_code = request.query_params.get('language_code')
+
+        if not player_id or not language_code:
+            return Response({"error": "player_id and language_code are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        player = get_object_or_404(Player, id=player_id)
+
+        language = get_object_or_404(Language, language=language_code)
+
+        player_progresses = PlayerProgress.objects.filter(player=player, questionnaire__language=language)
+
+        if not player_progresses.exists():
+            return Response({"error": "Player progress not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PlayerProgressSerializer(player_progresses, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def get_levels(self, request):
