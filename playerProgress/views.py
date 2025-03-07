@@ -107,6 +107,21 @@ class PlayerProgressViewSet(viewsets.ModelViewSet):
         questionnaire_id = request.data.get('questionnaire_id')
 
         player_progress = PlayerProgress.objects.get(questionnaire_id = questionnaire_id)
+
+        if not player_progress:
+            return Response({"error": "PlayerProgress not found"}, status=status.HTTP_404_NOT_FOUND)
+
         player_progress.completed = True
         player_progress.save()
         return Response({"message": "PlayerProgress actualizado"}, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def get_completed(self, request):
+        questionnaire_id = request.query_params.get('questionnaire_id')
+
+        player_progress = PlayerProgress.objects.get(questionnaire_id = questionnaire_id)
+
+        if not player_progress:
+            return Response({"error": "PlayerProgress not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"completed": player_progress.completed}, status=status.HTTP_200_OK)
