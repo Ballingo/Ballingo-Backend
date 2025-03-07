@@ -104,9 +104,9 @@ class PlayerProgressViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['put'])
     def set_completed(self, request):
 
-        player_progress_id = request.data.get('player_progress_id')
+        questionnaire_id = request.data.get('questionnaire_id')
 
-        player_progress = PlayerProgress.objects.get(id = player_progress_id)
+        player_progress = PlayerProgress.objects.get(questionnaire_id = questionnaire_id)
         player_progress.completed = True
         player_progress.save()
         return Response({"message": "PlayerProgress actualizado"}, status=status.HTTP_200_OK)
