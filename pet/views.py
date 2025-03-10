@@ -155,3 +155,8 @@ class PetViewSet(viewsets.ModelViewSet):
             return Response(PetSerializer(pet).data, status=status.HTTP_200_OK)
         else:
             return Response({"error": "El jugador no tiene una mascota en este idioma"}, status=status.HTTP_404_NOT_FOUND)
+        
+    @action(detail=True, methods=['get'])
+    def get_is_dead(self, request, pk=None):
+        pet = self.get_object()
+        return Response({"isDead": pet.isDead})
