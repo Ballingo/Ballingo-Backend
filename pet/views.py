@@ -78,6 +78,15 @@ class PetViewSet(viewsets.ModelViewSet):
         accesories = pet.accesories.values("id", "image_path", "type")
         return Response({"accesories": list(accesories)})
 
+    @action(detail=True, methods=['get'])
+    def get_accesories_img(self, request, pk=None):
+        """
+        Devuelve solo los image_path de los accesorios de la mascota.
+        """
+        pet = self.get_object()
+        accesories = pet.accesories.values_list("image_path", flat=True)
+        return Response({"accesories_images": list(accesories)})
+
     @action(detail=True, methods=['put'])
     def set_accesories(self, request, pk=None):
         print("Received request:", json.loads(request.body))
