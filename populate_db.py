@@ -86,42 +86,36 @@ def populate_questions(n=10):
     print(f"✅ {n} questions created. \n")
 
 # 🔹 Populate Questionnaires (now with language field)
-def populate_questionnaires(n=5):
-    reset_table(Questionnaire)
+def populate_questionnaires():
+    #reset_table(Questionnaire)
+
+    try:
+        lang = Language.objects.get(id=1)
+    except Language.DoesNotExist:
+        print("⚠️ No se encontró el idioma con id=4.")
+        return
+
+    questions = list(Question.objects.filter(id__gte=111, id__lte=135).order_by('id'))
     
-    questions = list(Question.objects.all())  # Get all questions
-    languages = list(Language.objects.all())  # Get all languages
-
-    if not questions or not languages:
-        print("⚠️ Not enough questions or languages. Populate Question and Language first. \n")
+    if len(questions) < 25:
+        print(f"⚠️ No hay suficientes preguntas alemanas. Se encontraron {len(questions)}.")
         return
 
-    for _ in range(n):
-        q = Questionnaire.objects.create(
-            name=fake.word().capitalize(),
-            level=random.randint(1, 10),
-            language=random.choice(languages),  # Assign a random language
+    # Crea 5 cuestionarios, uno para cada nivel (1 a 5)
+    for level in range(1, 6):
+        # Para cada nivel, obtenemos un bloque de 5 preguntas:
+        # Nivel 1: índices 0 a 4, Nivel 2: 5 a 9, ..., Nivel 5: 20 a 24.
+        start = (level - 1) * 5
+        end = level * 5
+        qs = questions[start:end]
+        
+        questionnaire = Questionnaire.objects.create(
+            name=f"en-level-{level}",
+            level=level,
+            language=lang
         )
-
-        # Assign random questions (up to 5)
-        q.questions.add(*random.sample(questions, min(len(questions), 5)))
-
-    print(f"✅ {n} questionnaires created. \n")
-
-# 🔹 Populate FoodList (for each user)
-def populate_food_list(n=10):
-    reset_table(FoodList)
-    players = list(Player.objects.all())
-
-    if not players:
-        print("⚠️ No players found. Please populate BallingoUser first. \n")
-        return
-
-    for _ in range(n):
-        user = random.choice(players)
-        FoodList.objects.create(player=players)
-
-    print(f"✅ {n} food lists created. \n")
+        questionnaire.questions.add(*qs)
+        print(f"✅ Cuestionario para nivel {level} creado con {len(qs)} preguntas.")
 
 # 🔹 Populate FoodItem (assigning food to FoodLists)
 def populate_food_items(n=20):
@@ -314,7 +308,7 @@ if __name__ == "__main__":
     #populate_users()
     #populate_clothes()
     #populate_food()
-    populate_questions()
+    #populate_questions()
     #populate_shop_items()
     
     # 2️⃣ Populate Tables That Depend on the Above
