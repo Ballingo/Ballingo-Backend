@@ -162,6 +162,26 @@ class UpdatePlayerLivesCounter(APIView):
         except Inventory.DoesNotExist:
             return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
 
+class ChangeLivesAfterDeath(APIView):
+    def put(self, request, player_id):
+        amount = request.data.get('lives_counter')
+        try:
+            player = Player.objects.get(id=int(player_id))
+            inventory = player.inventory
+
+            if amount < 0:
+                return Response({"error": "Not enough lives."}, status=status.HTTP_400_BAD_REQUEST)
+
+            inventory.livesCounter = amount
+            inventory.save()
+
+            return Response({"message": "Succes", "New_lives_counter": inventory.livesCounter}, status=status.HTTP_200_OK)
+
+        except Player.DoesNotExist:
+            return Response({"error": "Player not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Inventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
 class UpdatePlayerWardrobe(APIView):
     def put(self, request, player_id):
         clothes_id = request.data.get('clothes_id')
