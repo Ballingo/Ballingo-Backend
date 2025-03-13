@@ -7,6 +7,13 @@ from .models import BallingoUser
 from .serializers import BallingoUserSerializer
 from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.conf import settings
+from django.core.mail import send_mail, EmailMultiAlternatives
+from utils.utils import generate_recovery_code
+from django.contrib.auth.hashers import make_password
 
 class SignupView(generics.CreateAPIView):
     queryset = BallingoUser.objects.all()
@@ -111,3 +118,85 @@ class SetLastLoginView(generics.UpdateAPIView):
         user.last_login = now()
         user.save(update_fields=['last_login'])
         return Response({"message": "Last login updated correctly"})
+
+class GetRecoveryCode(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(BallingoUser, email=email)
+
+        if not user.recovery_code:
+            return Response({'error': 'No recovery code found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({'recovery_code': user.recovery_code}, status=status.HTTP_200_OK)
+
+class ResetUserPassword(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(BallingoUser, email=email)
+        
+        recovery_code = generate_recovery_code()
+        user.recovery_code = recovery_code
+        user.save(update_fields=['recovery_code'])
+
+        subject = '🔐 Password Reset Request'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [email]
+
+        text_message = (
+            f"Hello {user.username},\n\n"
+            "We received a request to reset your password. Use the following code to reset it:\n\n"
+            f"🔢 Your recovery code: {recovery_code}\n\n"
+            "If you did not request this, please ignore this email.\n\n"
+            "Best regards,\nThe Ballingo Team"
+        )
+
+        html_message = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; background: #f9f9f9; text-align: center;">
+                <h2 style="color: #007bff;">🔐 Password Reset Request</h2>
+                <p>Hello <strong>{user.username}</strong>,</p>
+                <p>We received a request to reset your password. Use the following code to reset it:</p>
+                <p style="font-size: 24px; font-weight: bold; background: #007bff; color: white; padding: 10px; border-radius: 5px; display: inline-block;">
+                    {recovery_code}
+                </p>
+                <p>If you did not request this, please ignore this email.</p>
+                <br>
+                <p style="color: #777;">Best regards,<br><strong>The Ballingo Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+
+        email = EmailMultiAlternatives(subject, text_message, from_email, recipient_list)
+        email.attach_alternative(html_message, "text/html")
+        email.send(fail_silently=False)
+
+        return Response({'message': 'Email sent with instructions to reset your password'}, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        email = request.data.get('email')
+        new_password = request.data.get('new_password')
+
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = get_object_or_404(BallingoUser, email=email)
+
+        if not new_password:
+            return Response({'error': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.password = make_password(new_password)
+        user.save(update_fields=['password'])
+
+        return Response({'message': 'Password updated correctly'}, status=status.HTTP_200_OK)

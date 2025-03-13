@@ -165,3 +165,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+# Email settings
+EMAIL_BACKEND = 'user.backends.email_backend.EmailBackend'
+DEFAULT_FROM_EMAIL = 'Ballingo Team <noreply@ballingo.com>'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("BALLINGO_MAIL_USER")
+EMAIL_HOST_PASSWORD = os.getenv("BALLINGO_MAIL_PASSWORD")
