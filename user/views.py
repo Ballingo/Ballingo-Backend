@@ -7,9 +7,6 @@ from .models import BallingoUser
 from .serializers import BallingoUserSerializer
 from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from django.conf import settings
 from django.core.mail import send_mail, EmailMultiAlternatives
 from utils.utils import generate_recovery_code
@@ -162,19 +159,19 @@ class ResetUserPassword(APIView):
 
         html_message = f"""
         <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; background: #f9f9f9; text-align: center;">
-                <h2 style="color: #007bff;">🔐 Password Reset Request</h2>
-                <p>Hello <strong>{user.username}</strong>,</p>
-                <p>We received a request to reset your password. Use the following code to reset it:</p>
-                <p style="font-size: 24px; font-weight: bold; background: #007bff; color: white; padding: 10px; border-radius: 5px; display: inline-block;">
-                    {recovery_code}
-                </p>
-                <p>If you did not request this, please ignore this email.</p>
-                <br>
-                <p style="color: #777;">Best regards,<br><strong>The Ballingo Team</strong></p>
-            </div>
-        </body>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; background: #f9f9f9; text-align: center;">
+                    <h2 style="color: #007bff;">🔐 Password Reset Request</h2>
+                    <p>Hello <strong>{user.username}</strong>,</p>
+                    <p>We received a request to reset your password. Use the following code to reset it:</p>
+                    <p style="font-size: 24px; font-weight: bold; background: #007bff; color: white; padding: 10px; border-radius: 5px; display: inline-block;">
+                        {recovery_code}
+                    </p>
+                    <p>If you did not request this, please ignore this email.</p>
+                    <br>
+                    <p style="color: #777;">Best regards,<br><strong>The Ballingo Team</strong></p>
+                </div>
+            </body>
         </html>
         """
 

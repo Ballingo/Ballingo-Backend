@@ -13,26 +13,31 @@ class BallingoUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = BallingoUser.objects.create_user(**validated_data)
+        password = validated_data.pop('password', None)
+        user = BallingoUser(**validated_data)
+        if password:
+            if password.startswith('pbkdf2_'):
+                user.password = password
+            else:
+                user.set_password(password)
+        user.save()
 
         wardrobe = Wardrobe.objects.create()
         food_list = FoodList.objects.create()
-        
         inventory = Inventory.objects.create(clothes_inventory=wardrobe, food_inventory=food_list)
-
         player = Player.objects.create(user=user, inventory=inventory)
 
         wardrobe.player = player
         wardrobe.save()
-
         food_list.player = player
         food_list.save()
         
         return user
     
     def update(self, instance, validated_data):
-        """Actualizar usuario y encriptar contraseña si se proporciona"""
         if 'password' in validated_data:
-            validated_data['password'] = make_password(validated_data['password'])
+            password = validated_data.get('password')
+            if not password.startswith('pbkdf2_'):
+                validated_data['password'] = make_password(password)
         return super().update(instance, validated_data)
     
